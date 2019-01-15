@@ -1,0 +1,18 @@
+SparkFun_AS3935       KEYWORD1
+
+
+begin                 KEYWORD2
+powerDown             KEYWORD2
+indoorOutdoorSetting  KEYWORD2
+watchdogThreshold     KEYWORD2
+setNoiseLevel         KEYWORD2
+spikeReduction        KEYWORD2
+lightningThreshold    KEYWORD2
+clearStatistics       KEYWORD2
+readInterruptReg      KEYWORD2
+maskDisturber         KEYWORD2
+antennaTuning         KEYWORD2
+distanceToStorm       KEYWORD2
+displayOscillator     KEYWORD2
+tuneCap               KEYWORD2
+lightningEnergy       KEYWORD2
