@@ -1,3 +1,19 @@
+/*
+  A more in depth lightning detector Arduino example sketch. 
+  This will guide you through some more of the library's functions that aid in
+  reducing false events and noise. 
+  By: Elias Santistevan
+  SparkFun Electronics
+  Date: January, 2019
+  License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
+  This example listens for lightning events, which are internally determined by
+  the IC to be real or false events. 
+  Hardware: 
+  This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
+  system. You can attach a Qwiic cable or solder to the I-squared-C pins.
+  You'll also need a wire attached to the interrupt.  
+*/
+
 #include <SPI.h>
 #include <Wire.h>
 #include "SparkFun_AS3935.h"
@@ -19,34 +35,33 @@
 SparkFun_AS3935 lightning(AS3935_ADDR);
 
 // Interrupt pin for lightning detection 
-// Interrupt pin for lightning detection 
-const uint8_t lightningInt = 4; 
-uint8_t noiseFloor = 0x02;
-uint8_t watchDogVal = 0x02;
-uint8_t spike = 0x02;
-uint8_t intVal = 0; 
-uint8_t distance = 0; 
-uint8_t startup = 0; 
+const int lightningInt = 4; 
+// Values for modifying the IC's detection sensitivity. 
+byte noiseFloor = 2;
+byte watchDogVal = 2;
+byte spike = 2;
+
+// This variable holds the number representing the lightning or non-lightning
+// event issued by the lightning detector. 
+byte intVal = 0; 
 
 void setup()
 {
   // When lightning is detected the interrupt pin goes HIGH.
   pinMode(lightningInt, INPUT); 
 
-  Serial.begin(9600); 
+  Serial.begin(115200); 
   Serial.println("AS3935 Franklin Lightning Detector"); 
+
   // SPI.begin() // For SPI
   Wire.begin(); // Begin Wire before lightning sensor. 
-  startup = lightning.begin(); // Initialize the sensor. 
-  //startup = lightning.beginSPI(9, 2000000); 
-  Serial.print("Did we start: "); 
-  if(!startup){
+  if( !lightning.begin() ){ // Initialize the sensor. 
+  //if( !lightning.beginSPI(9, 2000000) ) { //Uncomment for SPI
+    Serial.println ("Lightning Detector did not start up, freezing!"); 
     while(1); 
-    Serial.println ("No."); 
   }
   else
-    Serial.println("Schmow-ZoW (Yes)!");
-  
+    Serial.println("Schmow-ZoW, Lightning Detector Ready!");
   // "Disturbers" are events that are false lightning events. If you find
   // yourself seeing a lot of disturbers you can have the chip not report those
   // events on the interrupt lines. 
@@ -76,7 +91,7 @@ void loop()
       Serial.println("Lightning Strike Detected!"); 
       // Lightning! Now how far away is it? Distance estimation takes into
       // account previously seen events. 
-      distance = lightning.distanceToStorm(); 
+      byte distance = lightning.distanceToStorm(); 
       Serial.print("Approximately: "); 
       Serial.print(distance); 
       Serial.print("km away!"); 

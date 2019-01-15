@@ -1,3 +1,17 @@
+/*
+  A basic lightning detector Arduino example sketch. 
+  By: Elias Santistevan
+  SparkFun Electronics
+  Date: January, 2019
+  License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
+  This example listens for lightning events, which are internally determined by
+  the IC to be real or false events. 
+  Hardware: 
+  This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
+  system. You can attach a Qwiic cable or solder to the I-squared-C pins.
+  You'll also need a wire attached to the interrupt.  
+*/
+
 #include <SPI.h>
 #include <Wire.h>
 #include "SparkFun_AS3935.h"
@@ -19,11 +33,12 @@
 SparkFun_AS3935 lightning(AS3935_ADDR);
 
 // Interrupt pin for lightning detection 
-const uint8_t lightningInt = 4; 
-uint8_t noiseFloor = 0x02;
-uint8_t intVal = 0; 
-uint8_t distance = 0; 
-uint8_t startup = 0; 
+const int lightningInt = 4; 
+int noiseFloor = 2;
+
+// This variable holds the number representing the lightning or non-lightning
+// event issued by the lightning detector. 
+int intVal = 0;
 
 void setup()
 {
@@ -32,19 +47,20 @@ void setup()
 
   Serial.begin(115200); 
   Serial.println("AS3935 Franklin Lightning Detector"); 
+
   //SPI.begin() 
   Wire.begin(); // Begin Wire before lightning sensor. 
-  startup = lightning.begin(); // Initialize the sensor. 
-  //startup = lightning.beginSPI(9, 2000000); 
-  Serial.print("Did we start: "); 
-  if(!startup){
+
+  if( !lightning.begin() ) { // Initialize the sensor. 
+  //if( !lightning.beginSPI(9, 2000000){ // Uncomment for SPI.
+    Serial.println ("Lightning Detector did not start up, freezing!"); 
     while(1); 
-    Serial.println ("No."); 
   }
   else
-    Serial.println("Schmow-ZoW (Yes)!");
-  // The lightning detector defaults to an indoor setting (less
-  // gain/sensitivity), if you plan on using this outdoors 
+    Serial.println("Schmow-ZoW, Lightning Detector Ready!");
+
+  // The lightning detector defaults to an indoor setting at 
+  // the cost of less sensitivity, if you plan on using this outdoors 
   // uncomment the following line:
   //lightning.setIndoorOutdoor(OUTDOOR); 
 }
@@ -66,7 +82,7 @@ void loop()
       Serial.println("Lightning Strike Detected!"); 
       // Lightning! Now how far away is it? Distance estimation takes into
       // account any previously seen events in the last 15 seconds. 
-      distance = lightning.distanceToStorm(); 
+      byte distance = lightning.distanceToStorm(); 
       Serial.print("Approximately: "); 
       Serial.print(distance); 
       Serial.println("km away!"); 
