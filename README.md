@@ -1,7 +1,7 @@
 SparkFun Qwiic AS3935 Lightning Detector Arduino Library
 ========================================
 
-[![Qwiic AS3925 Lightning Detector](https://cdn.sparkfun.com//assets/parts/1/3/7/5/1/15276-SparkFun_Lightning_Detector_-_AS3935__Qwiic_-01.jpg)
+[![Qwiic AS3925 Lightning Detector](https://cdn.sparkfun.com//assets/parts/1/3/7/5/1/15276-SparkFun_Lightning_Detector_-_AS3935__Qwiic_-01.jpg)](https://www.sparkfun.com/products/15276)
 
 [*SparkFun Qwiic AS3935 Lightning Detector (SEN-15276)*](https://www.sparkfun.com/products/15276)
 
