@@ -82,7 +82,7 @@ bool SparkFun_AS3935::wakeUp()
 // This funciton changes toggles the chip's settings for Indoors and Outdoors. 
 void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
 {
-  if((_setting != INDOOR) | (_setting != OUTDOOR))
+  if((_setting != INDOOR) || (_setting != OUTDOOR))
     return;
 
   if(_setting == INDOOR)
@@ -96,7 +96,7 @@ void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
 // IRQ Pin.  
 void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
 {
-  if( (_sensitivity < 1) | (_sensitivity > 10) )// 10 is the max sensitivity setting
+  if( (_sensitivity < 1) || (_sensitivity > 10) )// 10 is the max sensitivity setting
     return; 
 
   writeRegister(THRESHOLD, GAIN_MASK, _sensitivity, 1); 
@@ -109,7 +109,7 @@ void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
 // Check datasheet for specific noise level tolerances when setting this register. 
 void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
 {
-  if( (_floor < 1) | (_floor > 7) )
+  if( (_floor < 1) || (_floor > 7) )
     return; 
   
   writeRegister(THRESHOLD, FLOOR_MASK, _floor, 4); 
@@ -122,7 +122,7 @@ void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
 // at the cost of sensitivity to distant events. 
 void SparkFun_AS3935::spikeRejection( uint8_t _spSensitivity )
 {
-  if( (_spSensitivity < 1) | (_spSensitivity > 11) )
+  if( (_spSensitivity < 1) || (_spSensitivity > 11) )
     return; 
 
   writeRegister(LIGHTNING_REG, SPIKE_MASK, _spSensitivity, 0); 
@@ -136,7 +136,7 @@ void SparkFun_AS3935::spikeRejection( uint8_t _spSensitivity )
 void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 {
 
-  if( (_strikes != 1) | (_strikes != 5) | (_strikes != 9) | (_strikes != 16) )
+  if( (_strikes != 1) || (_strikes != 5) || (_strikes != 9) || (_strikes != 16) )
     return; 
 
   if( _strikes == 1)
@@ -200,7 +200,7 @@ void SparkFun_AS3935::maskDisturber(bool _state)
 // that value for proper signal validation and distance estimation.
 void SparkFun_AS3935::antennaTuning(uint8_t _divisionRatio)
 {
-  if( (_divisionRatio != 16) | (_divisionRatio != 32) | (_divisionRatio != 64) | (_divisionRatio != 128) )
+  if( (_divisionRatio != 16) || (_divisionRatio != 32) || (_divisionRatio != 64) || (_divisionRatio != 128) )
     return;
 
   if(_divisionRatio == 16) 
@@ -228,7 +228,7 @@ uint8_t SparkFun_AS3935::distanceToStorm()
 //  _osc 3, bit[7] = LCO - Frequency of the Antenna
 void SparkFun_AS3935::displayOscillator(bool _state, uint8_t _osc)
 {
-  if( (_osc < 1) | (_osc > 3) )
+  if( (_osc < 1) || (_osc > 3) )
     return;
 
   if(_state == true){
