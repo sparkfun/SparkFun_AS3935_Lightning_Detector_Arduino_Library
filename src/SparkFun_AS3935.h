@@ -33,10 +33,11 @@ enum SF_AS3935_REGSTER_MASKS {
   INT_MASK          = 0xF0, 
   ENERGY_MASK       = 0xF0, 
   FLOOR_MASK        = 0x07,
-  OSC_MASK          = 0x07,
-  CAP_MASK          = 0x07, 
+  OSC_MASK          = 0xE0,
+  CAP_MASK          = 0xF, 
   SPI_READ_M        = 0x40,
-  CALIB_MASK        = 0x7F
+  CALIB_MASK        = 0x7F,
+  DIV_MASK          = 0x3F
 
 };
 
@@ -83,7 +84,7 @@ class SparkFun_AS3935
     // after power down. The following function wakes the IC, sends the "Direct Command" to 
     // CALIB_RCO register REG0x3D, waits 2ms and then checks that it has been successfully
     // calibrated. Note that I-squared-C and SPI are active during power down. 
-    bool SparkFun_AS3935::wakeUp();
+    bool wakeUp();
     // REG0x00, bits [5:1], manufacturer default: 10010 (INDOOR). 
     // This funciton changes toggles the chip's settings for Indoors and Outdoors. 
     void setIndoorOutdoor(uint8_t _setting);
@@ -128,7 +129,14 @@ class SparkFun_AS3935
     // The antenna is designed to resonate at 500kHz and so can be tuned with the
     // following setting. The accuracy of the antenna must be within 3.5 percent of
     // that value for proper signal validation and distance estimation.
-    void antennaTuning(uint8_t _divisionRatio);
+    void changeDivRatio(uint8_t _divisionRatio);
+    // REG0x03, bit [7:6], manufacturer default: 0 (16 division ratio). 
+    // This function returns the current division ratio of the resonance frequency.
+    // The antenna resonance frequency should be within 3.5 percent of 500kHz, and
+    // so when modifying the resonance frequency with the internal capacitors
+    // (tuneCap()) it's important to keep in mind that the displayed frequency on
+    // the IRQ pin is divided by this number. 
+    uint8_t readDivisionRatio();
     // REG0x07, bit [5:0], manufacturer default: 0. 
     // This register holds the distance to the front of the storm and not the
     // distance to a lightning strike.  
@@ -138,7 +146,7 @@ class SparkFun_AS3935
     //  _osc 1, bit[5] = TRCO - Timer RCO Oscillators 1.1MHz
     //  _osc 2, bit[6] = SRCO - System RCO at 32.768kHz
     //  _osc 3, bit[7] = LCO - Frequency of the Antenna
-    void displayOscillator(bool _state, uint8_t _osc);
+    void displayOscillator(bool _state, int _osc);
     // REG0x08, bits [3:0], manufacturer default: 0. 
     // This setting will add capacitance to the series RLC antenna on the product.
     // It's possible to add 0-120pF in steps of 8pF to the antenna. 
@@ -168,7 +176,7 @@ class SparkFun_AS3935
     // start position. 
     void writeRegister(uint8_t _reg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition);
     // This function reads the given register. 
-    uint8_t readRegister(uint8_t _reg, uint8_t _len);
+    uint8_t readRegister(uint8_t _reg, int _len);
     
     // I-squared-C and SPI Classes
     TwoWire *_i2cPort; 

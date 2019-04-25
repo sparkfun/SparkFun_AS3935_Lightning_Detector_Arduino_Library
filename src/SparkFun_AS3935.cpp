@@ -15,7 +15,7 @@
 SparkFun_AS3935::SparkFun_AS3935() { }
 
 // Another constructor with I2C but receives address from user.  
-SparkFun_AS3935::SparkFun_AS3935(i2cAddress address) { _address = address; }
+SparkFun_AS3935::SparkFun_AS3935(i2cAddress address) { int(_address) = address; }
 
 bool SparkFun_AS3935::begin( TwoWire &wirePort )
 {
@@ -136,7 +136,9 @@ void SparkFun_AS3935::spikeRejection( uint8_t _spSensitivity )
 void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 {
 
-  if( (_strikes != 1) || (_strikes != 5) || (_strikes != 9) || (_strikes != 16) )
+  if( (_strikes == 1) || (_strikes == 5) || (_strikes == 9) || (_strikes == 16) )
+    { } 
+  else
     return; 
 
   if( _strikes == 1)
@@ -198,9 +200,11 @@ void SparkFun_AS3935::maskDisturber(bool _state)
 // The antenna is designed to resonate at 500kHz and so can be tuned with the
 // following setting. The accuracy of the antenna must be within 3.5 percent of
 // that value for proper signal validation and distance estimation.
-void SparkFun_AS3935::antennaTuning(uint8_t _divisionRatio)
+void SparkFun_AS3935::changeDivRatio(uint8_t _divisionRatio)
 {
-  if( (_divisionRatio != 16) || (_divisionRatio != 32) || (_divisionRatio != 64) || (_divisionRatio != 128) )
+  if( (_divisionRatio == 16) || (_divisionRatio == 32) || 
+      (_divisionRatio == 64) || (_divisionRatio == 128) ) { }
+  else
     return;
 
   if(_divisionRatio == 16) 
@@ -211,6 +215,30 @@ void SparkFun_AS3935::antennaTuning(uint8_t _divisionRatio)
     writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 1, 7); 
   else if(_divisionRatio == 128) 
     writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), ((1<<7)|(1<<6)), 6); 
+}
+
+// REG0x03, bit [7:6], manufacturer default: 0 (16 division ratio). 
+// This function returns the current division ratio of the resonance frequency.
+// The antenna resonance frequency should be within 3.5 percent of 500kHz, and
+// so when modifying the resonance frequency with the internal capacitors
+// (tuneCap()) it's important to keep in mind that the displayed frequency on
+// the IRQ pin is divided by this number. 
+uint8_t SparkFun_AS3935::readDivisionRatio(){
+
+  uint8_t regVal = readRegister(INT_MASK_ANT, 1); 
+  regVal &= (~DIV_MASK); //I only want to return the two bits on the big endian side
+
+  // The bits don't translate directly into the division ratio, and so here
+  // we're checking the value in order to return the correct corresponding value. 
+  if( regVal == 0 )
+    return 16; 
+  else if( regVal == 0x40 ) 
+    return 32;
+  else if( regVal == 0x80 )
+    return 64;
+  else 
+    return 128; 
+
 }
 // REG0x07, bit [5:0], manufacturer default: 0. 
 // This register holds the distance to the front of the storm and not the
@@ -223,10 +251,10 @@ uint8_t SparkFun_AS3935::distanceToStorm()
 }
 // REG0x08, bits [5,6,7], manufacturer default: 0. 
 // This will send the frequency of the oscillators to the IRQ pin. 
-//  _osc 1, bit[5] = TRCO - Timer RCO Oscillators 1.1MHz
-//  _osc 2, bit[6] = SRCO - System RCO at 32.768kHz
+//  _osc 1, bit[5] = TRCO - System RCO at 32.768kHz
+//  _osc 2, bit[6] = SRCO - Timer RCO Oscillators 1.1MHz
 //  _osc 3, bit[7] = LCO - Frequency of the Antenna
-void SparkFun_AS3935::displayOscillator(bool _state, uint8_t _osc)
+void SparkFun_AS3935::displayOscillator(bool _state, int _osc)
 {
   if( (_osc < 1) || (_osc > 3) )
     return;
@@ -241,13 +269,16 @@ void SparkFun_AS3935::displayOscillator(bool _state, uint8_t _osc)
   }
 
   if(_state == false){
+    if(_osc == 1)
       writeRegister(FREQ_DISP_IRQ, OSC_MASK, 0, 5); //Demonstrative
     if(_osc == 2)
       writeRegister(FREQ_DISP_IRQ, OSC_MASK, 0, 6); 
     if(_osc == 3)
       writeRegister(FREQ_DISP_IRQ, OSC_MASK, 0, 7); 
   }
+
 }
+
 // REG0x08, bits [3:0], manufacturer default: 0. 
 // This setting will add capacitance to the series RLC antenna on the product
 // to help tune its resonance. The datasheet specifies being within 3.5 percent
@@ -255,7 +286,7 @@ void SparkFun_AS3935::displayOscillator(bool _state, uint8_t _osc)
 // It's possible to add up to 120pF in steps of 8pF to the antenna. 
 void SparkFun_AS3935::tuneCap(uint8_t _farad)
 {
-  if(_farad > 15)
+  if (_farad > 15)
    return;
 
   writeRegister(FREQ_DISP_IRQ, CAP_MASK, _farad, 0);    
@@ -310,7 +341,7 @@ void SparkFun_AS3935::writeRegister(uint8_t _wReg, uint8_t _mask, uint8_t _bits,
 }
 
 // This function reads the given register. 
-uint8_t SparkFun_AS3935::readRegister(uint8_t _reg, uint8_t _len)
+uint8_t SparkFun_AS3935::readRegister(uint8_t _reg, int _len)
 {
 
   if(_i2cPort == NULL) {
