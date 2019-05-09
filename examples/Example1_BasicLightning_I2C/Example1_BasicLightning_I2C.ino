@@ -1,11 +1,12 @@
 /*
-  A basic lightning detector Arduino example sketch. 
+  --A basic lightning detector Arduino example sketch-- 
+  Utilizing I-squared-C, this example listens for lightning "events". The IC determines
+  whether or not it's actual lightning, disturber, or noise. In the case
+  your environment has a lot of noise 
   By: Elias Santistevan
   SparkFun Electronics
-  Date: January, 2019
+  Date: May, 2019
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  This example listens for lightning events, which are internally determined by
-  the IC to be real or false events. 
   Hardware: 
   This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
   system. You can attach a Qwiic cable or solder to the I-squared-C pins.
@@ -25,11 +26,7 @@
 #define DISTURBER_INT 0x04
 #define NOISE_INT 0x01
 
-// If you using SPI, instantiate class without address: 
-//SparkFun_AS3935 lightning;
-
-// If you're using I-squared-C then keep the following line. Address is set to
-// default. 
+// Address is set to default. 
 SparkFun_AS3935 lightning(AS3935_ADDR);
 
 // Interrupt pin for lightning detection 
@@ -48,11 +45,9 @@ void setup()
   Serial.begin(115200); 
   Serial.println("AS3935 Franklin Lightning Detector"); 
 
-  //SPI.begin() 
   Wire.begin(); // Begin Wire before lightning sensor. 
 
   if( !lightning.begin() ) { // Initialize the sensor. 
-  //if( !lightning.beginSPI(9, 2000000){ // Uncomment for SPI.
     Serial.println ("Lightning Detector did not start up, freezing!"); 
     while(1); 
   }
@@ -105,4 +100,14 @@ void reduceNoise(){
   }
   Serial.println("Increasing the event threshold.");
   lightning.setNoiseLevel(noiseFloor);  
+}
+
+// This function is similar to the one above in that it will increase the
+// antenna's robustness against false positives. However, this function helps to
+// increase the robustness against "distrubers" and not "noise". If you have a
+// lot of disturbers trying increasing the threshold. The default value is 2 and
+// goes up to 10. You can remove the call to watchdogThreshold() from this
+// function; the function is a demonstrative tool.  
+void changeDisturberThresh(int threshVal){
+    lightning.watchdogThreshold(threshVal);  
 }

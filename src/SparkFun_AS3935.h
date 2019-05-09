@@ -158,6 +158,8 @@ class SparkFun_AS3935
     // According to the datasheet this is only a pure value that doesn't have any
     // physical meaning. 
     uint32_t lightningEnergy();
+    // This function reads the given register. 
+    uint8_t readRegister(uint8_t _reg, int _len);
   
   private:
 
@@ -175,8 +177,6 @@ class SparkFun_AS3935
     // setting, and then write the given bits to the register at the given
     // start position. 
     void writeRegister(uint8_t _reg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition);
-    // This function reads the given register. 
-    uint8_t readRegister(uint8_t _reg, int _len);
     
     // I-squared-C and SPI Classes
     TwoWire *_i2cPort; 

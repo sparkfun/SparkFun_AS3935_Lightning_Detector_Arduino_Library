@@ -50,6 +50,14 @@ bool SparkFun_AS3935::beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPICla
   pinMode(_cs, OUTPUT); 
   digitalWrite(_cs, HIGH);// Deselect the Lightning Detector. 
   _spiPort->begin(); // Set up the SPI pins. 
+
+  // Bit order is different for ESP32
+#ifdef ESP32 
+    SPI.setBitOrder(SPI_MSBFIRST);
+#else
+    SPI.setBitOrder(MSBFIRST);
+#endif
+
   return true; 
 }
 // REG0x00, bit[0], manufacturer default: 0. 
@@ -179,7 +187,7 @@ uint8_t SparkFun_AS3935::readInterruptReg()
     // after the interrupt pin goes HIGH. See "Interrupt Management" in
     // datasheet. 
     delay(2);
-    lightningStatus _interValue; 
+    uint8_t _interValue; 
     _interValue = readRegister(INT_MASK_ANT, 1); 
     _interValue &= (~INT_MASK); // Only need the first four bits [3:0]
     return(_interValue); 
