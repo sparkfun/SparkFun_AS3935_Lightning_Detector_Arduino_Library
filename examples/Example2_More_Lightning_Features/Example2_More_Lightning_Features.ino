@@ -53,7 +53,7 @@ void setup()
   Serial.begin(115200); 
   Serial.println("AS3935 Franklin Lightning Detector"); 
 
-  // SPI.begin() // For SPI
+  // SPI.begin(); // For SPI
   Wire.begin(); // Begin Wire before lightning sensor. 
   if( !lightning.begin() ){ // Initialize the sensor. 
   //if( !lightning.beginSPI(9, 2000000) ) { //Uncomment for SPI
@@ -97,7 +97,7 @@ void loop()
       Serial.print("km away!"); 
       // "Lightning Energy" and I do place into quotes intentionally, is a pure
       // number that does not have any physical meaning. 
-      //lightEnergy = mylight.lightningEnergy(); 
+      //byte lightEnergy = lightning.lightningEnergy(); 
       //Serial.print("Lightning Energy: "); 
       //Serial.println(lightEnergy); 
 

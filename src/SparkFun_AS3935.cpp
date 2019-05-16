@@ -90,7 +90,9 @@ bool SparkFun_AS3935::wakeUp()
 // This funciton changes toggles the chip's settings for Indoors and Outdoors. 
 void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
 {
-  if((_setting != INDOOR) || (_setting != OUTDOOR))
+  if((_setting == INDOOR) || (_setting == OUTDOOR))
+    { }
+  else
     return;
 
   if(_setting == INDOOR)
