@@ -97,7 +97,7 @@ void loop()
       Serial.print("km away!"); 
       // "Lightning Energy" and I do place into quotes intentionally, is a pure
       // number that does not have any physical meaning. 
-      //byte lightEnergy = lightning.lightningEnergy(); 
+      //long lightEnergy = lightning.lightningEnergy(); 
       //Serial.print("Lightning Energy: "); 
       //Serial.println(lightEnergy); 
 
