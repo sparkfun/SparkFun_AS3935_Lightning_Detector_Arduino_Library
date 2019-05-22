@@ -87,7 +87,7 @@ bool SparkFun_AS3935::wakeUp()
 }
 
 // REG0x00, bits [5:1], manufacturer default: 10010 (INDOOR). 
-// This funciton changes toggles the chip's settings for Indoors and Outdoors. 
+// This function changes toggles the chip's settings for Indoors and Outdoors. 
 void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
 {
   if((_setting == INDOOR) || (_setting == OUTDOOR))
@@ -101,6 +101,15 @@ void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
     writeRegister(AFE_GAIN, GAIN_MASK, OUTDOOR, 1); 
 }
 
+// REG0x00, bits [5:1], manufacturer default: 10010 (INDOOR). 
+// This function returns the indoor/outdoor settting. 
+uint8_t SparkFun_AS3935::readIndoorOutdoor(){
+
+  uint8_t regVal = readRegister(AFE_GAIN, 1); 
+  return ((regVal &= (~IO_MASK)) >> 1); 
+
+}
+
 // REG0x01, bits[3:0], manufacturer default: 0010 (2). 
 // This setting determines the threshold for events that trigger the 
 // IRQ Pin.  
@@ -109,7 +118,17 @@ void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
   if( (_sensitivity < 1) || (_sensitivity > 10) )// 10 is the max sensitivity setting
     return; 
 
-  writeRegister(THRESHOLD, GAIN_MASK, _sensitivity, 1); 
+  writeRegister(THRESHOLD, GAIN_MASK, _sensitivity, 0); 
+}
+
+// REG0x01, bits[3:0], manufacturer default: 0010 (2). 
+// This function returns the threshold for events that trigger the 
+// IRQ Pin.  
+uint8_t SparkFun_AS3935::readWatchdogThreshold(){
+
+  uint8_t regVal = readRegister(THRESHOLD, 1); 
+  return (regVal &= (~THRESH_MASK));
+
 }
 
 // REG0x01, bits [6:4], manufacturer default: 010 (2).
@@ -125,6 +144,15 @@ void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
   writeRegister(THRESHOLD, FLOOR_MASK, _floor, 4); 
 }
 
+// REG0x01, bits [6:4], manufacturer default: 010 (2).
+// This function will return the set noise level threshold: default is 2.
+uint8_t SparkFun_AS3935::readNoiseLevel(){
+
+  uint8_t regVal = readRegister(THRESHOLD, 1);
+  return ((regVal &= (~NOISE_MASK)) >> 4);
+
+}
+
 // REG0x02, bits [3:0], manufacturer default: 0010 (2).
 // This setting, like the watchdog threshold, can help determine between false
 // events and actual lightning. The shape of the spike is analyzed during the
@@ -138,7 +166,17 @@ void SparkFun_AS3935::spikeRejection( uint8_t _spSensitivity )
   writeRegister(LIGHTNING_REG, SPIKE_MASK, _spSensitivity, 0); 
 }
 
+// REG0x02, bits [3:0], manufacturer default: 0010 (2).
+// This function returns the value of the spike rejection register. This value
+// helps to differentiate between events and acutal lightning, by analyzing the 
+// shape of the spike during  chip's signal validation routine. 
+// Increasing this value increases robustness at the cost of sensitivity to distant events. 
+uint8_t SparkFun_AS3935::readSpikeRejection(){
 
+  uint8_t regVal = readRegister(LIGHTNING_REG, 1);
+  return (regVal &= (~R_SPIKE_MASK));
+
+}
 // REG0x02, bits [5:4], manufacturer default: 0 (single lightning strike).
 // The number of lightning events before IRQ is set high. 15 minutes is The 
 // window of time before the number of detected lightning events is reset. 
@@ -161,6 +199,15 @@ void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
     writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), (1<<5)|(1<<4), 4); 
 }
 
+// REG0x02, bits [5:4], manufacturer default: 0 (single lightning strike).
+// This function will return the number of lightning strikes must strike within
+// a 15 minute window before it triggers an event on the IRQ pin. Default is 1. 
+uint8_t SparkFun_AS3935::readLightningThreshold(){
+
+  uint8_t regVal = readRegister(LIGHTNING_REG, 1);
+  return (regVal &= (~LIGHT_MASK));
+  
+}
 
 // REG0x02, bit [6], manufacturer default: 1. 
 // This register clears the number of lightning strikes that has been read in
@@ -204,6 +251,16 @@ void SparkFun_AS3935::maskDisturber(bool _state)
   if(_state == false)
     writeRegister(INT_MASK_ANT, (1<<5), 0, 5); //Demonstrative
   
+}
+
+
+// REG0x03, bit [5], manufacturere default: 0.
+// This setting will return whether or not disturbers trigger the IRQ Pin. 
+uint8_t SparkFun_AS3935::readMaskDisturber(){
+
+  uint8_t regVal = readRegister(INT_MASK_ANT, 1);
+  return ((regVal &= (~DISTURB_MASK)) >> 5);
+
 }
 
 // REG0x03, bit [7:6], manufacturer default: 0 (16 division ratio). 
@@ -250,15 +307,19 @@ uint8_t SparkFun_AS3935::readDivisionRatio(){
     return 128; 
 
 }
+
 // REG0x07, bit [5:0], manufacturer default: 0. 
 // This register holds the distance to the front of the storm and not the
 // distance to a lightning strike.  
 uint8_t SparkFun_AS3935::distanceToStorm()
 {
+
   uint8_t _dist = readRegister(DISTANCE, 1); 
   _dist &= (~DISTANCE_MASK); 
   return(_dist); 
+
 }
+
 // REG0x08, bits [5,6,7], manufacturer default: 0. 
 // This will send the frequency of the oscillators to the IRQ pin. 
 //  _osc 1, bit[5] = TRCO - System RCO at 32.768kHz
@@ -302,6 +363,16 @@ void SparkFun_AS3935::tuneCap(uint8_t _farad)
   writeRegister(FREQ_DISP_IRQ, CAP_MASK, _farad, 0);    
 }
 
+// REG0x08, bits [3:0], manufacturer default: 0. 
+// This setting will return the capacitance of the internal capacitors. It will
+// return a value from one to 15 multiplied by the 8pF steps of the internal
+// capacitance.
+uint8_t SparkFun_AS3935::readTuneCap(){
+
+  uint8_t regVal = readRegister(FREQ_DISP_IRQ, 1);
+  return ((regVal &= (~CAP_MASK)) * 8); //Multiplied by 8pF
+
+}
 // LSB =  REG0x04, bits[7:0]
 // MSB =  REG0x05, bits[7:0]
 // MMSB = REG0x06, bits[4:0]
