@@ -120,10 +120,7 @@ void setup()
   //lightning.lightningThreshold(lightningThresh); 
   uint8_t lightVal = lightning.readLightningThreshold();
   Serial.print("The number of strikes before interrupt is triggerd: "); 
-  if( lightVal == 0 ) // 0 is equal to 1 lightning strike.  
-    Serial.println(1); 
-  else 
-    Serial.println(lightVal); 
+  Serial.println(lightVal); 
 
   // When the distance to the storm is estimated, it takes into account other
   // lightning that was sensed in the past 15 minutes. If you want to reset

@@ -205,7 +205,18 @@ void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 uint8_t SparkFun_AS3935::readLightningThreshold(){
 
   uint8_t regVal = readRegister(LIGHTNING_REG, 1);
-  return (regVal &= (~LIGHT_MASK));
+  regVal &= (~LIGHT_MASK);
+  regVal = regVal >> 4;
+  if(regVal == 0)
+    return 1; 
+  else if(regVal == 1)
+    return 5;
+  else if(regVal == 2)
+    return 9; 
+  else if(regVal == 3)
+    return 16; 
+  else 
+    return regVal;
   
 }
 
@@ -373,6 +384,7 @@ uint8_t SparkFun_AS3935::readTuneCap(){
   return ((regVal &= (~CAP_MASK)) * 8); //Multiplied by 8pF
 
 }
+
 // LSB =  REG0x04, bits[7:0]
 // MSB =  REG0x05, bits[7:0]
 // MMSB = REG0x06, bits[4:0]
