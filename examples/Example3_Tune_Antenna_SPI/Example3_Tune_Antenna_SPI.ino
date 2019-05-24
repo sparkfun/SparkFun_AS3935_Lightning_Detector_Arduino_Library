@@ -42,17 +42,6 @@ void setup()
   else
     Serial.println("Ready to tune antenna!");
 
-
-  // This will tell the IC to display the resonance frequncy as a digital
-  // signal on the interrupt pin. There are two other internal oscillators 
-  // within the chip that can also be displayed on this line but is outside the
-  // scope of this example, see page 35 of the datsheet for more information.
-  Serial.println("\n----Displaying oscillator on INT pin.----\n"); 
-  lightning.displayOscillator(true, ANTFREQ); 
-  // To stop displaying the frequncy on the interrupt line, give "false" as a
-  // parameter.
-  //lightning.displayOscillator(false, ANTFREQ); 
-  
   // When reading the frequency, keep in mind that the given frequency is
   // divided by 16 by default. This can be changed to be divided by 32, 64, or
   // 128 using the line below. So for example when reading the frequency on a 
@@ -81,6 +70,16 @@ void setup()
   int tuneVal = lightning.readTuneCap();
   Serial.print("Internal Capacitor is set to: "); 
   Serial.println(tuneVal);
+
+  // This will tell the IC to display the resonance frequncy as a digital
+  // signal on the interrupt pin. There are two other internal oscillators 
+  // within the chip that can also be displayed on this line but is outside the
+  // scope of this example, see page 35 of the datsheet for more information.
+  Serial.println("\n----Displaying oscillator on INT pin.----\n"); 
+  lightning.displayOscillator(true, ANTFREQ); 
+  // To stop displaying the frequncy on the interrupt line, give "false" as a
+  // parameter.
+  //lightning.displayOscillator(false, ANTFREQ); 
 }
 
 void loop() {

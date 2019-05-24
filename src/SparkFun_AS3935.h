@@ -51,8 +51,7 @@ typedef enum SF_AS3935_I2C_ADDRESS {
 
  AS3935_DEFAULT_ADDRESS = 0x03, // Default ADD0 and ADD1 are HIGH
  AS3935_ADDRESS_ADD1_H  = 0x02, // ADD1 HIGH, ADD0 LOW
- AS3935_ADDRESS_ADD0_H  = 0x01, // ADD1 LOW, ADD0 HIGH
- AS3935_ADDRESS_LOW     = 0x00  // BOTH LOW 
+ AS3935_ADDRESS_ADD0_H  = 0x01 // ADD1 LOW, ADD0 HIGH
 
 } i2cAddress;
 
@@ -75,7 +74,7 @@ class SparkFun_AS3935
     SparkFun_AS3935();
 
     // Constructor to be used with I-squared-C. 
-    SparkFun_AS3935(i2cAddress address);
+    SparkFun_AS3935(int address);
 
     // I-squared-C Begin
     bool begin(TwoWire &wirePort = Wire);
@@ -132,7 +131,7 @@ class SparkFun_AS3935
     // chip's signal validation routine. Increasing this value increases robustness
     // at the cost of sensitivity to distant events. 
     void spikeRejection(uint8_t _spSensitivity);
-
+    
     // REG0x02, bits [3:0], manufacturer default: 0010 (2).
     // This function returns the value of the spike rejection register. This value
     // helps to differentiate between events and acutal lightning, by analyzing the 
@@ -236,7 +235,7 @@ class SparkFun_AS3935
     // start position. 
     void writeRegister(uint8_t _reg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition);
     // Reads the given register.
-    uint8_t readRegister(uint8_t _reg, int _len);
+    uint8_t readRegister(uint8_t _reg);
     // I-squared-C and SPI Classes
     TwoWire *_i2cPort; 
     SPIClass *_spiPort; 

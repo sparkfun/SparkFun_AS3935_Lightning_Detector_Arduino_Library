@@ -43,16 +43,6 @@ void setup()
   else
     Serial.println("Ready to tune antenna!");
 
-  // This will tell the IC to display the resonance frequncy as a digital
-  // signal on the interrupt pin. There are two other internal oscillators 
-  // within the chip that can also be displayed on this line but is outside the
-  // scope of this example, see page 35 of the datsheet for more information.
-  Serial.println("\n----Displaying oscillator on INT pin.----\n"); 
-  lightning.displayOscillator(true, ANTFREQ); 
-  // To stop displaying the frequncy on the interrupt line, give "false" as a
-  // parameter.
-  //lightning.displayOscillator(false, ANTFREQ); 
-  
   // When reading the frequency, keep in mind that the given frequency is
   // divided by 16 by default. This can be changed to be divided by 32, 64, or
   // 128 using the line below. So for example when reading the frequency on a 
@@ -65,9 +55,9 @@ void setup()
   // The following function call is just a sanity check. It will return a value
   // of 16 by default but can be 32, 64, or 128, depending on what you change
   // it too.
-  byte divVal = lightning.readDivisionRatio(); 
-  Serial.print("Division Ratio is set to: "); 
-  Serial.println(divVal); 
+  //byte divVal = lightning.readDivisionRatio(); 
+  //Serial.print("Division Ratio is set to: "); 
+  //Serial.println(divVal); 
 
   //Here you give a value of 0-16, which increases the capacitance on
   //the RLC circuit in steps of 8pF, up to 120pF. For example giving a
@@ -76,11 +66,22 @@ void setup()
   //frequency was sitting around 490kHz down from 512kHz. Consider that 
   //the equation for calculating frequency in an RLC circuit is: 
   // f = 1/(2pi*sqrt(LC)), just a mental morsel. 
-  //lightning.tuneCap(1); 
+  lightning.tuneCap(8); 
   // When reading the internal capcitor value, it will return the value in pF.
   int tuneVal = lightning.readTuneCap();
   Serial.print("Internal Capacitor is set to: "); 
   Serial.println(tuneVal);
+
+  // This will tell the IC to display the resonance frequncy as a digital
+  // signal on the interrupt pin. There are two other internal oscillators 
+  // within the chip that can also be displayed on this line but is outside the
+  // scope of this example, see page 35 of the datsheet for more information.
+  Serial.println("\n----Displaying oscillator on INT pin.----\n"); 
+  lightning.displayOscillator(true, ANTFREQ); 
+  // To stop displaying the frequncy on the interrupt line, give "false" as a
+  // parameter.
+  //lightning.displayOscillator(false, ANTFREQ); 
+  
 }
 
 void loop() {

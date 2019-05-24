@@ -15,7 +15,7 @@
 SparkFun_AS3935::SparkFun_AS3935() { }
 
 // Another constructor with I2C but receives address from user.  
-SparkFun_AS3935::SparkFun_AS3935(i2cAddress address) { int(_address) = address; }
+SparkFun_AS3935::SparkFun_AS3935(int address) { _address = address; }
 
 bool SparkFun_AS3935::begin( TwoWire &wirePort )
 {
@@ -80,7 +80,7 @@ bool SparkFun_AS3935::wakeUp()
   writeRegister(AFE_GAIN, 0x1, 0, 0); // Set the power down bit to zero to wake it up
   writeRegister(CALIB_RCO, 0x0, DIRECT_COMMAND, 0); // Send command to calibrate the oscillators 
   delay(2); // Give time for the internal oscillators to start up.  
-  if( readRegister(CALIB_SRCO, 1) && CALIB_MASK ) 
+  if( readRegister(CALIB_SRCO) && CALIB_MASK ) 
     return true;
   else
     return false; 
@@ -105,7 +105,7 @@ void SparkFun_AS3935::setIndoorOutdoor( uint8_t _setting )
 // This function returns the indoor/outdoor settting. 
 uint8_t SparkFun_AS3935::readIndoorOutdoor(){
 
-  uint8_t regVal = readRegister(AFE_GAIN, 1); 
+  uint8_t regVal = readRegister(AFE_GAIN); 
   return ((regVal &= (~IO_MASK)) >> 1); 
 
 }
@@ -126,7 +126,7 @@ void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
 // IRQ Pin.  
 uint8_t SparkFun_AS3935::readWatchdogThreshold(){
 
-  uint8_t regVal = readRegister(THRESHOLD, 1); 
+  uint8_t regVal = readRegister(THRESHOLD); 
   return (regVal &= (~THRESH_MASK));
 
 }
@@ -148,7 +148,7 @@ void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
 // This function will return the set noise level threshold: default is 2.
 uint8_t SparkFun_AS3935::readNoiseLevel(){
 
-  uint8_t regVal = readRegister(THRESHOLD, 1);
+  uint8_t regVal = readRegister(THRESHOLD);
   return ((regVal &= (~NOISE_MASK)) >> 4);
 
 }
@@ -173,7 +173,7 @@ void SparkFun_AS3935::spikeRejection( uint8_t _spSensitivity )
 // Increasing this value increases robustness at the cost of sensitivity to distant events. 
 uint8_t SparkFun_AS3935::readSpikeRejection(){
 
-  uint8_t regVal = readRegister(LIGHTNING_REG, 1);
+  uint8_t regVal = readRegister(LIGHTNING_REG);
   return (regVal &= (~R_SPIKE_MASK));
 
 }
@@ -204,7 +204,7 @@ void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 // a 15 minute window before it triggers an event on the IRQ pin. Default is 1. 
 uint8_t SparkFun_AS3935::readLightningThreshold(){
 
-  uint8_t regVal = readRegister(LIGHTNING_REG, 1);
+  uint8_t regVal = readRegister(LIGHTNING_REG);
   regVal &= (~LIGHT_MASK);
   regVal = regVal >> 4;
   if(regVal == 0)
@@ -248,7 +248,7 @@ uint8_t SparkFun_AS3935::readInterruptReg()
     // datasheet. 
     delay(2);
     uint8_t _interValue; 
-    _interValue = readRegister(INT_MASK_ANT, 1); 
+    _interValue = readRegister(INT_MASK_ANT); 
     _interValue &= (~INT_MASK); // Only need the first four bits [3:0]
     return(_interValue); 
 }
@@ -269,7 +269,7 @@ void SparkFun_AS3935::maskDisturber(bool _state)
 // This setting will return whether or not disturbers trigger the IRQ Pin. 
 uint8_t SparkFun_AS3935::readMaskDisturber(){
 
-  uint8_t regVal = readRegister(INT_MASK_ANT, 1);
+  uint8_t regVal = readRegister(INT_MASK_ANT);
   return ((regVal &= (~DISTURB_MASK)) >> 5);
 
 }
@@ -303,7 +303,7 @@ void SparkFun_AS3935::changeDivRatio(uint8_t _divisionRatio)
 // the IRQ pin is divided by this number. 
 uint8_t SparkFun_AS3935::readDivisionRatio(){
 
-  uint8_t regVal = readRegister(INT_MASK_ANT, 1); 
+  uint8_t regVal = readRegister(INT_MASK_ANT); 
   regVal &= (~DIV_MASK); //I only want to return the two bits on the big endian side
 
   // The bits don't translate directly into the division ratio, and so here
@@ -325,7 +325,7 @@ uint8_t SparkFun_AS3935::readDivisionRatio(){
 uint8_t SparkFun_AS3935::distanceToStorm()
 {
 
-  uint8_t _dist = readRegister(DISTANCE, 1); 
+  uint8_t _dist = readRegister(DISTANCE); 
   _dist &= (~DISTANCE_MASK); 
   return(_dist); 
 
@@ -380,7 +380,7 @@ void SparkFun_AS3935::tuneCap(uint8_t _farad)
 // capacitance.
 uint8_t SparkFun_AS3935::readTuneCap(){
 
-  uint8_t regVal = readRegister(FREQ_DISP_IRQ, 1);
+  uint8_t regVal = readRegister(FREQ_DISP_IRQ);
   return ((regVal &= (~CAP_MASK)) * 8); //Multiplied by 8pF
 
 }
@@ -393,15 +393,15 @@ uint8_t SparkFun_AS3935::readTuneCap(){
 // physical meaning. 
 uint32_t SparkFun_AS3935::lightningEnergy()
 {
-  _tempPE = readRegister(ENERGY_LIGHT_MMSB, 1);
+  _tempPE = readRegister(ENERGY_LIGHT_MMSB);
   _tempPE &= (~ENERGY_MASK); //Only interested in the first four bits. 
   // Temporary Value is large enough to handle a shift of 16 bits.
   _pureLight = _tempPE << 16; 
-  _tempPE = readRegister(ENERGY_LIGHT_MSB, 1);
+  _tempPE = readRegister(ENERGY_LIGHT_MSB);
   // Temporary value is large enough to handle a shift of 8 bits.
   _pureLight |= _tempPE << 8; 
   // No shift here, directly OR'ed into _pureLight variable.
-  _pureLight |= readRegister(ENERGY_LIGHT_LSB, 1);
+  _pureLight |= readRegister(ENERGY_LIGHT_LSB);
   return _pureLight;
 }
   
@@ -412,7 +412,7 @@ uint32_t SparkFun_AS3935::lightningEnergy()
 void SparkFun_AS3935::writeRegister(uint8_t _wReg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition)
 {
   if(_i2cPort == NULL) {
-    _spiWrite = readRegister(_wReg, 1); // Get the current value of the register
+    _spiWrite = readRegister(_wReg); // Get the current value of the register
     _spiWrite &= (~_mask); // Mask the position we want to write to
     _spiWrite |= (_bits << _startPosition); // Write the given bits to the variable
     _spiPort->beginTransaction(SPISettings(_spiPortSpeed, MSBFIRST, SPI_MODE1)); 
@@ -423,7 +423,7 @@ void SparkFun_AS3935::writeRegister(uint8_t _wReg, uint8_t _mask, uint8_t _bits,
     _spiPort->endTransaction();
   }
   else { 
-    _i2cWrite = readRegister(_wReg, 1); // Get the current value of the register
+    _i2cWrite = readRegister(_wReg); // Get the current value of the register
     _i2cWrite &= (~_mask); // Mask the position we want to write to.
     _i2cWrite |= (_bits << _startPosition);  // Write the given bits to the variable
     _i2cPort->beginTransmission(_address); // Start communication.
@@ -434,7 +434,7 @@ void SparkFun_AS3935::writeRegister(uint8_t _wReg, uint8_t _mask, uint8_t _bits,
 }
 
 // This function reads the given register. 
-uint8_t SparkFun_AS3935::readRegister(uint8_t _reg, int _len)
+uint8_t SparkFun_AS3935::readRegister(uint8_t _reg)
 {
 
   if(_i2cPort == NULL) {
@@ -454,7 +454,7 @@ uint8_t SparkFun_AS3935::readRegister(uint8_t _reg, int _len)
     _i2cPort->beginTransmission(_address); 
     _i2cPort->write(_reg); // Moves pointer to register.
     _i2cPort->endTransmission(false); // 'False' here sends a restart message so that bus is not released
-    _i2cPort->requestFrom(_address, _len); // Read the register.
+    _i2cPort->requestFrom(_address, 1); // Read the register, only ever once. 
     _regValue = _i2cPort->read();
     return(_regValue);
   }

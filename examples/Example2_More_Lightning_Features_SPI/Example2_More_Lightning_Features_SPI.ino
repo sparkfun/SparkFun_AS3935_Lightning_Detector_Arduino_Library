@@ -157,7 +157,7 @@ void loop()
       byte distance = lightning.distanceToStorm(); 
       Serial.print("Approximately: "); 
       Serial.print(distance); 
-      Serial.print("km away!"); 
+      Serial.println("km away!"); 
       // "Lightning Energy" and I do place into quotes intentionally, is a pure
       // number that does not have any physical meaning. 
       //long lightEnergy = lightning.lightningEnergy(); 
