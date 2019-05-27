@@ -117,8 +117,7 @@ void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
 {
   if( (_sensitivity < 1) || (_sensitivity > 10) )// 10 is the max sensitivity setting
     return; 
-
-  writeRegister(THRESHOLD, GAIN_MASK, _sensitivity, 0); 
+  writeRegister(THRESHOLD, THRESH_MASK, _sensitivity, 0);
 }
 
 // REG0x01, bits[3:0], manufacturer default: 0010 (2). 
@@ -126,9 +125,8 @@ void SparkFun_AS3935::watchdogThreshold( uint8_t _sensitivity )
 // IRQ Pin.  
 uint8_t SparkFun_AS3935::readWatchdogThreshold(){
 
-  uint8_t regVal = readRegister(THRESHOLD); 
-  return (regVal &= (~THRESH_MASK));
-
+  uint8_t regVal = readRegister(THRESHOLD);
+  return (regVal & THRESH_MASK);
 }
 
 // REG0x01, bits [6:4], manufacturer default: 010 (2).
@@ -141,7 +139,7 @@ void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
   if( (_floor < 1) || (_floor > 7) )
     return; 
   
-  writeRegister(THRESHOLD, FLOOR_MASK, _floor, 4); 
+  writeRegister(THRESHOLD, NOISE_FLOOR_MASK, _floor, 4); 
 }
 
 // REG0x01, bits [6:4], manufacturer default: 010 (2).
@@ -149,7 +147,7 @@ void SparkFun_AS3935::setNoiseLevel( uint8_t _floor )
 uint8_t SparkFun_AS3935::readNoiseLevel(){
 
   uint8_t regVal = readRegister(THRESHOLD);
-  return ((regVal &= (~NOISE_MASK)) >> 4);
+  return ((regVal & NOISE_FLOOR_MASK) >> 4);
 
 }
 

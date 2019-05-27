@@ -32,17 +32,16 @@ enum SF_AS3935_REGSTER_MASKS {
   IO_MASK           = 0xC1,
   DISTANCE_MASK     = 0xC0,
   INT_MASK          = 0xF0, 
-  THRESH_MASK       = 0xF0, 
+  THRESH_MASK       = 0x0F, 
   R_SPIKE_MASK      = 0xF0, 
   ENERGY_MASK       = 0xF0, 
   CAP_MASK          = 0xF0, 
   LIGHT_MASK        = 0xCF, 
   DISTURB_MASK      = 0xDF, 
-  FLOOR_MASK        = 0x07,
+  NOISE_FLOOR_MASK  = 0x70,
   OSC_MASK          = 0xE0,
   SPI_READ_M        = 0x40,
   CALIB_MASK        = 0x7F,
-  NOISE_MASK        = 0x8F,
   DIV_MASK          = 0x3F
 
 };
