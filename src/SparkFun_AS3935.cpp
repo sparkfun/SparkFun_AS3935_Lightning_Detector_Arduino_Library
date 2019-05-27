@@ -183,20 +183,20 @@ uint8_t SparkFun_AS3935::readSpikeRejection(){
 // The number of lightning strikes can be set to 1,5,9, or 16. 
 void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 {
-
-  if( (_strikes == 1) || (_strikes == 5) || (_strikes == 9) || (_strikes == 16) )
-    { } 
-  else
-    return; 
-
+  uint8_t bits;       // Bits to be set in register, corresponding to _strikes
+  
   if( _strikes == 1)
-    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 0, 4); //Demonstrative
-  if( _strikes == 5)
-    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 1, 4); 
-  if( _strikes == 9)
-    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 1, 5); 
-  if( _strikes == 16)
-    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), (1<<5)|(1<<4), 4); 
+    bits = 0;
+  else if( _strikes == 5)
+    bits = 1;
+  else if( _strikes == 9)
+    bits = 2;
+  else if( _strikes == 16)
+    bits = 3;
+  else
+    return;
+  
+  writeRegister(LIGHTNING_REG, STRIKES_MASK, bits, 4);
 }
 
 // REG0x02, bits [5:4], manufacturer default: 0 (single lightning strike).
@@ -205,7 +205,7 @@ void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 uint8_t SparkFun_AS3935::readLightningThreshold(){
 
   uint8_t regVal = readRegister(LIGHTNING_REG);
-  regVal &= (~LIGHT_MASK);
+  regVal &= STRIKES_MASK;
   regVal = regVal >> 4;
   if(regVal == 0)
     return 1; 
@@ -280,19 +280,20 @@ uint8_t SparkFun_AS3935::readMaskDisturber(){
 // that value for proper signal validation and distance estimation.
 void SparkFun_AS3935::changeDivRatio(uint8_t _divisionRatio)
 {
-  if( (_divisionRatio == 16) || (_divisionRatio == 32) || 
-      (_divisionRatio == 64) || (_divisionRatio == 128) ) { }
+  uint8_t bits;       // Bits to set in register, corresponding to _divisionRatio
+
+  if( _divisionRatio == 16)
+    bits = 0;
+  else if( _divisionRatio == 32)
+    bits = 1;
+  else if( _divisionRatio == 64)
+    bits = 2;
+  else if( _divisionRatio == 128)
+    bits = 3;
   else
     return;
-
-  if(_divisionRatio == 16) 
-    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 0, 6); //Demonstrative
-  if(_divisionRatio == 32) 
-    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 1, 6); 
-  else if(_divisionRatio == 64) 
-    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 1, 7); 
-  else if(_divisionRatio == 128) 
-    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), ((1<<7)|(1<<6)), 6); 
+  
+  writeRegister(INT_MASK_ANT, ~DIV_MASK, bits, 6);
 }
 
 // REG0x03, bit [7:6], manufacturer default: 0 (16 division ratio). 
