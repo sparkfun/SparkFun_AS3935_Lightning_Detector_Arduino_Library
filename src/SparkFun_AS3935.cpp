@@ -15,7 +15,7 @@
 SparkFun_AS3935::SparkFun_AS3935() { }
 
 // Another constructor with I2C but receives address from user.  
-SparkFun_AS3935::SparkFun_AS3935(int address) { _address = address; }
+SparkFun_AS3935::SparkFun_AS3935(enum SF_AS3935_I2C_ADDRESS address) { _address = address; }
 
 bool SparkFun_AS3935::begin( TwoWire &wirePort )
 {
