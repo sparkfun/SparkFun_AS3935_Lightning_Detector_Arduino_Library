@@ -74,7 +74,7 @@ class SparkFun_AS3935
     SparkFun_AS3935();
 
     // Constructor to be used with I-squared-C. 
-    SparkFun_AS3935(int address);
+    SparkFun_AS3935(enum SF_AS3935_I2C_ADDRESS address);
 
     // I-squared-C Begin
     bool begin(TwoWire &wirePort = Wire);
