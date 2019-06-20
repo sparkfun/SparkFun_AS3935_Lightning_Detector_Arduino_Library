@@ -15,7 +15,7 @@
 SparkFun_AS3935::SparkFun_AS3935() { }
 
 // Another constructor with I2C but receives address from user.  
-SparkFun_AS3935::SparkFun_AS3935(enum SF_AS3935_I2C_ADDRESS address) { _address = address; }
+SparkFun_AS3935::SparkFun_AS3935( i2cAddress address ) { _address = address; }
 
 bool SparkFun_AS3935::begin( TwoWire &wirePort )
 {
@@ -184,11 +184,6 @@ uint8_t SparkFun_AS3935::readSpikeRejection(){
 void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
 {
 
-  if( (_strikes == 1) || (_strikes == 5) || (_strikes == 9) || (_strikes == 16) )
-    { } 
-  else
-    return; 
-
   if( _strikes == 1)
     writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 0, 4); //Demonstrative
   if( _strikes == 5)
@@ -196,7 +191,9 @@ void SparkFun_AS3935::lightningThreshold( uint8_t _strikes )
   if( _strikes == 9)
     writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 1, 5); 
   if( _strikes == 16)
-    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), (1<<5)|(1<<4), 4); 
+    writeRegister(LIGHTNING_REG, ((1<<5)|(1<<4)), 3, 4); 
+  else
+    return;
 }
 
 // REG0x02, bits [5:4], manufacturer default: 0 (single lightning strike).
@@ -280,10 +277,6 @@ uint8_t SparkFun_AS3935::readMaskDisturber(){
 // that value for proper signal validation and distance estimation.
 void SparkFun_AS3935::changeDivRatio(uint8_t _divisionRatio)
 {
-  if( (_divisionRatio == 16) || (_divisionRatio == 32) || 
-      (_divisionRatio == 64) || (_divisionRatio == 128) ) { }
-  else
-    return;
 
   if(_divisionRatio == 16) 
     writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 0, 6); //Demonstrative
@@ -292,7 +285,9 @@ void SparkFun_AS3935::changeDivRatio(uint8_t _divisionRatio)
   else if(_divisionRatio == 64) 
     writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 1, 7); 
   else if(_divisionRatio == 128) 
-    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), ((1<<7)|(1<<6)), 6); 
+    writeRegister(INT_MASK_ANT, ((1<<7)|(1<<6)), 3, 6); 
+  else
+    return; 
 }
 
 // REG0x03, bit [7:6], manufacturer default: 0 (16 division ratio). 

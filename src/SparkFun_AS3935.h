@@ -5,6 +5,12 @@
 #include <SPI.h>
 #include <Arduino.h>
 
+typedef int i2cAddress; 
+
+const i2cAddress defAddr = 0x03; // Default ADD0 and ADD1 are HIGH
+const i2cAddress addrOneHigh = 0x02; // ADD1 HIGH, ADD0 LOW
+const i2cAddress addrZeroHigh = 0x01;// ADD1 LOW, ADD0 HIGH
+
 enum SF_AS3935_REGISTER_NAMES {
 
 	AFE_GAIN          = 0x00, 
@@ -47,14 +53,6 @@ enum SF_AS3935_REGSTER_MASKS {
 
 };
 
-typedef enum SF_AS3935_I2C_ADDRESS {
-
- AS3935_DEFAULT_ADDRESS = 0x03, // Default ADD0 and ADD1 are HIGH
- AS3935_ADDRESS_ADD1_H  = 0x02, // ADD1 HIGH, ADD0 LOW
- AS3935_ADDRESS_ADD0_H  = 0x01 // ADD1 LOW, ADD0 HIGH
-
-} i2cAddress;
-
 typedef enum INTERRUPT_STATUS {
 
   NOISE_TO_HIGH     = 0x01,
@@ -74,7 +72,7 @@ class SparkFun_AS3935
     SparkFun_AS3935();
 
     // Constructor to be used with I-squared-C. 
-    SparkFun_AS3935(enum SF_AS3935_I2C_ADDRESS address);
+    SparkFun_AS3935(i2cAddress address);
 
     // I-squared-C Begin
     bool begin(TwoWire &wirePort = Wire);
