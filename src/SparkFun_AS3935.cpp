@@ -374,7 +374,7 @@ void SparkFun_AS3935::tuneCap(uint8_t _farad)
 uint8_t SparkFun_AS3935::readTuneCap(){
 
   uint8_t regVal = readRegister(FREQ_DISP_IRQ);
-  return ((regVal &= (~CAP_MASK)) * 8); //Multiplied by 8pF
+  return ((regVal &= CAP_MASK) * 8); //Multiplied by 8pF
 
 }
 
