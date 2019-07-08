@@ -41,7 +41,7 @@ enum SF_AS3935_REGSTER_MASKS {
   THRESH_MASK       = 0x0F, 
   R_SPIKE_MASK      = 0xF0, 
   ENERGY_MASK       = 0xF0, 
-  CAP_MASK          = 0xF0, 
+  CAP_MASK          = 0x0F, 
   LIGHT_MASK        = 0xCF, 
   DISTURB_MASK      = 0xDF, 
   NOISE_FLOOR_MASK  = 0x70,
