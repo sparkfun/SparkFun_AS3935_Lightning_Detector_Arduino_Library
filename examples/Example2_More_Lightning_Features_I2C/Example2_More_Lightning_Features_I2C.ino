@@ -1,17 +1,13 @@
 /*
-  A more in depth lightning detector Arduino example sketch. 
-  This will guide you through some more of the library's functions that aid in
-  reducing false events and noise. 
+  This example code will walk you through the rest of the functions not
+  mentioned in the other example code. This includes different ways to reduce
+  false events, how to power down (and what that entails) and wake up your
+  board, as well as how to reset all the settings to their factory defaults. 
+
   By: Elias Santistevan
   SparkFun Electronics
-  Date: January, 2019
+  Date: July, 2019
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  This example listens for lightning events, which are internally determined by
-  the IC to be real or false events. 
-  Hardware: 
-  This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
-  system. You can attach a Qwiic cable or solder to the I-squared-C pins.
-  You'll also need a wire attached to the interrupt.  
 */
 
 #include <SPI.h>
@@ -88,7 +84,9 @@ void setup()
   // Noise floor setting from 1-7, one being the lowest. Default setting is
   // two. If you need to check the setting, the corresponding function for
   // reading the function follows.    
-  //lightning.setNoiseLevel(noiseFloor);  
+
+  lightning.setNoiseLevel(noiseFloor);  
+
   int noiseVal = lightning.readNoiseLevel();
   Serial.print("Noise Level is set at: ");
   Serial.println(noiseVal);
@@ -96,7 +94,9 @@ void setup()
   // Watchdog threshold setting can be from 1-10, one being the lowest. Default setting is
   // two. If you need to check the setting, the corresponding function for
   // reading the function follows.    
-  //lightning.watchdogThreshold(watchDogVal); 
+
+  lightning.watchdogThreshold(watchDogVal); 
+
   int watchVal = lightning.readWatchdogThreshold();
   Serial.print("Watchdog Threshold is set to: ");
   Serial.println(watchVal);
@@ -107,19 +107,20 @@ void setup()
   // The shape of the spike is analyzed during the chip's
   // validation routine. You can round this spike at the cost of sensitivity to
   // distant events. 
-  //lightning.spikeRejection(spike); 
+
+  lightning.spikeRejection(spike); 
+
   int spikeVal = lightning.readSpikeRejection();
   Serial.print("Spike Rejection is set to: ");
   Serial.println(spikeVal);
 
-
   // This setting will change when the lightning detector issues an interrupt.
   // For example you will only get an interrupt after five lightning strikes
   // instead of one. Default is one, and it takes settings of 1, 5, 9 and 16.   
-  // Followed by its corresponding read function. 
-  //lightning.lightningThreshold(lightningThresh); 
-  //uint8_t lightVal = lightning.readLightningThreshold();
-  //lightning.lightningThreshold(lightningThresh); 
+  // Followed by its corresponding read function. Default is zero. 
+
+  lightning.lightningThreshold(lightningThresh); 
+
   uint8_t lightVal = lightning.readLightningThreshold();
   Serial.print("The number of strikes before interrupt is triggerd: "); 
   Serial.println(lightVal); 
@@ -127,17 +128,25 @@ void setup()
   // When the distance to the storm is estimated, it takes into account other
   // lightning that was sensed in the past 15 minutes. If you want to reset
   // time, then you can call this function. 
+
   //lightning.clearStatistics(); 
 
-  // This will power down your lightning detector. You absolutely have to call
-  // the wakup funciton following, because it recalibrates the internal
-  // oscillators. 
-  //lightning.powerDown(); 
-  //if( lightning.wakeUp() ) 
-  //  Serial.println("Successfully woken up!");  
-  //else 
-  //  Serial.println("Error recalibrating internal osciallator on wake up."); 
+  // The power down function has a BIG "gotcha". When you wake up the board
+  // after power down, the internal oscillators will be recalibrated. They are
+  // recalibrated according to the resonance frequency of the antenna - which
+  // should be around 500kHz. It's highly recommended that you calibrate your
+  // antenna before using these two functions, or you run the risk of schewing
+  // the timing of the chip. 
 
+  //lightning.powerDown(); 
+  //delay(1000);
+  //if( lightning.wakeUp() ) 
+   // Serial.println("Successfully woken up!");  
+  //else 
+    //Serial.println("Error recalibrating internal osciallator on wake up."); 
+  
+  // Set too many features? Reset them all with the following function.
+  lightning.resetSettings();
   
 }
 
@@ -161,11 +170,12 @@ void loop()
       Serial.print("Approximately: "); 
       Serial.print(distance); 
       Serial.println("km away!"); 
+
       // "Lightning Energy" and I do place into quotes intentionally, is a pure
       // number that does not have any physical meaning. 
-      //long lightEnergy = lightning.lightningEnergy(); 
-      //Serial.print("Lightning Energy: "); 
-      //Serial.println(lightEnergy); 
+      long lightEnergy = lightning.lightningEnergy(); 
+      Serial.print("Lightning Energy: "); 
+      Serial.println(lightEnergy); 
 
     }
   }

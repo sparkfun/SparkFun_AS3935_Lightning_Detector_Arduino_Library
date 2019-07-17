@@ -1,20 +1,19 @@
 /*
   This example sketch will walk you through how to tune the resonance frequency
-  of the antenna. Testing with a Saleae Logic 8 Pro, I've found that freshly
-  manufactured boards here at SparkFun will have a frequency around ~512Hz (2.4
-  percent deviation) by default. This falls well within the optimal value of 3.5 percent
-  suggested in the datasheet on page 35. However if you'd like to tune that
-  frequency, the chip provides internal capacitance that can be modified by the
-  library. You'll need a logic analyzer, oscillscope, or some method of reading 
-  a 32kHz square wave (more on that below by division ratio function call) connected to the "INT" pin.
+  of the antenna using the IC's internal tuning caps. You'll need a logic analyzer, 
+  oscillscope, or some method of reading a square wave of at least 4kHz but up to 32kHz.
+  A note on what you can expect from a board fresh from SparkFun.
+  The resonance frequency of a freshly manufactured SparkFun AS3935 Lightning
+  Detectorw has been ~496kHz which is less then one percent deviation from
+  perfect resonance. This falls well within the optimal value of 3.5 percent
+  suggested in the datasheet on page 35. Again, 3.5 percent is OPTIMAL so try
+  not to tear your hair out if it's not perfect. 
+
   By: Elias Santistevan
   SparkFun Electronics
   Date: April, 2019
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  Hardware: 
-  This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
-  system. You can attach a Qwiic cable or solder to the I-squared-C pins.
-  You'll also need a wire attached to the interrupt.  
+
 */
 
 #include <SPI.h>
@@ -26,8 +25,6 @@
 #define AS3935_ADDR 0x03 
 #define ANTFREQ 3
 
-// If you're using I-squared-C then keep the following line. Address is set to
-// default. 
 SparkFun_AS3935 lightning(AS3935_ADDR);
 
 void setup()
@@ -43,30 +40,30 @@ void setup()
   else
     Serial.println("Ready to tune antenna!");
 
-  // When reading the frequency, keep in mind that the given frequency is
-  // divided by 16 by default. This can be changed to be divided by 32, 64, or
-  // 128 using the line below. So for example when reading the frequency on a 
-  // fresh board, the frequency I'm reading is 32.05kHz; multiplied by 16 and
-  // the result is 512.8kHz. This is 2.56 percent away from the 500kHz ideal
-  // value and well within the 3.5 percent optimal tolerance. If I were to
-  // change the division ratio to 32, then I read a value of 16kHz.  
+  // The frequency of the antenna is divided by the "division ratio" which is
+  // set to 16 by default. This can be changed to 32, 64, or 128 using the 
+  // function call below. As an example when reading the frequency of a 
+  // new board, the frequency 31.04kHz. Multiplying that frequency by the
+  // division ratio gives 496.64kHz, which is less than 1 percent within the
+  // OPTIMAL range of 3.5 percent specified in the datasheet.
+
   //lightning.changeDivRatio(32);
 
-  // The following function call is just a sanity check. It will return a value
-  // of 16 by default but can be 32, 64, or 128, depending on what you change
-  // it too.
-  //byte divVal = lightning.readDivisionRatio(); 
-  //Serial.print("Division Ratio is set to: "); 
-  //Serial.println(divVal); 
+  // Read the division ratio - 16 is default.  
+  byte divVal = lightning.readDivRatio(); 
+  Serial.print("Division Ratio is set to: "); 
+  Serial.println(divVal); 
 
-  //Here you give a value of 0-16, which increases the capacitance on
-  //the RLC circuit in steps of 8pF, up to 120pF. For example giving a
-  //paramater of 2: 2 * 8pF = 16pF. 
-  //The change in frequency is very modest. At 15 (max - 120pF), I found that the
-  //frequency was sitting around 490kHz down from 512kHz. Consider that 
-  //the equation for calculating frequency in an RLC circuit is: 
-  // f = 1/(2pi*sqrt(LC)), just a mental morsel. 
-  lightning.tuneCap(8); 
+  // Here you give the value of the capacitor you want turned on. It accepts up
+  // to 120pF in steps of 8pF: 8, 16, 24, 32 etc.The change in frequency is
+  // somewhat modest. At the maximum value you can lower the frequency up to 22kHz. 
+  // As a starting point, the products designed in house ship around 496kHz
+  // (though of course every board is different) putting you within one percent
+  // of a perfect resonance; the datasheet specifies being within 3.5 percent as
+  // optimal. 
+
+  //lightning.tuneCap(8); 
+
   // When reading the internal capcitor value, it will return the value in pF.
   int tuneVal = lightning.readTuneCap();
   Serial.print("Internal Capacitor is set to: "); 
@@ -78,9 +75,22 @@ void setup()
   // scope of this example, see page 35 of the datsheet for more information.
   Serial.println("\n----Displaying oscillator on INT pin.----\n"); 
   lightning.displayOscillator(true, ANTFREQ); 
+
   // To stop displaying the frequncy on the interrupt line, give "false" as a
-  // parameter.
+  // parameter or power down your lightning detector.
+
   //lightning.displayOscillator(false, ANTFREQ); 
+
+
+  // You can now calibrate the internal oscillators of the IC - given that the
+  // resonance frequency of the antenna is tightly trimmed. They are calibrated
+  // off of the antenna frequency. 
+
+  //if(lightning.calibrateOsc());
+      //Serial.println("Successfully Calibrated!");
+    //else
+      //Serial.println("Not Successfully Calibrated!");
+      
   
 }
 

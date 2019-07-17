@@ -1,23 +1,22 @@
 /*
-  --A basic lightning detector Arduino example sketch-- 
-  Utilizing I-squared-C, this example listens for lightning "events". The IC determines
-  whether or not it's actual lightning, disturber, or noise. In the case
-  your environment has a lot of noise 
+
+  This example demonstrates how to detect lightning! It has a few basic
+  settings to help with rejecting noise or "disturbers" (false lightning events). 
+  It uses the onboard interrupt hardware pin, so in addition to attaching to
+  it data lines you'll need to connnect to the interrupt pin labled "INT". 
+
   By: Elias Santistevan
   SparkFun Electronics
   Date: May, 2019
   License: This code is public domain but you buy me a beer if you use this and we meet someday (Beerware license).
-  Hardware: 
-  This is SparkFun's Qwiic Lightning Detector and so is compatible with the Qwiic
-  system. You can attach a Qwiic cable or solder to the I-squared-C pins.
-  You'll also need a wire attached to the interrupt.  
+
 */
 
 #include <SPI.h>
 #include <Wire.h>
 #include "SparkFun_AS3935.h"
 
-// 0x03 is default, but the address can also be 0x02, 0x01, or 0x00
+// 0x03 is default, but the address can also be 0x02, 0x01.
 // Adjust the address jumpers on the underside of the product. 
 #define AS3935_ADDR 0x03 
 #define INDOOR 0x12 
@@ -26,16 +25,16 @@
 #define DISTURBER_INT 0x04
 #define NOISE_INT 0x01
 
-// Address is set to default. 
 SparkFun_AS3935 lightning(AS3935_ADDR);
 
 // Interrupt pin for lightning detection 
 const int lightningInt = 4; 
-int noiseFloor = 2;
 
 // This variable holds the number representing the lightning or non-lightning
 // event issued by the lightning detector. 
 int intVal = 0;
+int noise = 2; // Value between 1-7 
+int disturber = 2; // Value between 1-10
 
 void setup()
 {
@@ -68,10 +67,15 @@ void loop()
     intVal = lightning.readInterruptReg();
     if(intVal == NOISE_INT){
       Serial.println("Noise."); 
-      //reduceNoise(); //See note below above reduceNoise function.
+      // Too much noise? Uncomment the code below, a higher number means better
+      // noise rejection.
+      //lightning.setNoiseLevel(setNoiseLevel); 
     }
     else if(intVal == DISTURBER_INT){
       Serial.println("Disturber."); 
+      // Too many disturbers? Uncomment the code below, a higher number means better
+      // disturber rejection.
+      //lightning.watchdogThreshold(threshVal);  
     }
     else if(intVal == LIGHTNING_INT){
       Serial.println("Lightning Strike Detected!"); 
@@ -83,31 +87,6 @@ void loop()
       Serial.println("km away!"); 
     }
   }
-  delay(100); //Let's not be too crazy.
+  delay(100); // Slow it down.
 }
 
-// This function helps to adjust the sensor to your environment. More
-// environmental noise leads to more false positives. If you see lots of noise
-// events, try increasing the noise threshold with this function. I put the
-// function call under the if statement checking for noise. The datsheet
-// warns that smartphone and smart watch displays, DC-DC converters, and/or
-// anything that operates in 500 kHz range are noise sources to be avoided. 
-void reduceNoise(){
-  ++noiseFloor; // Manufacturer's default is 2 with a max of 7. 
-  if(noiseFloor > 7){
-    Serial.println("Noise floor is at max!"); 
-    return;
-  }
-  Serial.println("Increasing the event threshold.");
-  lightning.setNoiseLevel(noiseFloor);  
-}
-
-// This function is similar to the one above in that it will increase the
-// antenna's robustness against false positives. However, this function helps to
-// increase the robustness against "distrubers" and not "noise". If you have a
-// lot of disturbers trying increasing the threshold. The default value is 2 and
-// goes up to 10. You can remove the call to watchdogThreshold() from this
-// function; the function is a demonstrative tool.  
-void changeDisturberThresh(int threshVal){
-    lightning.watchdogThreshold(threshVal);  
-}

@@ -5,7 +5,7 @@
 #include <SPI.h>
 #include <Arduino.h>
 
-typedef int i2cAddress; 
+typedef uint8_t i2cAddress; 
 
 const i2cAddress defAddr = 0x03; // Default ADD0 and ADD1 are HIGH
 const i2cAddress addrOneHigh = 0x02; // ADD1 HIGH, ADD0 LOW
@@ -24,8 +24,8 @@ enum SF_AS3935_REGISTER_NAMES {
   FREQ_DISP_IRQ,
   CALIB_TRCO        = 0x3A, 
   CALIB_SRCO        = 0x3B,
-  DEFAULT_RESET     = 0x3C,
-  CALIB_RCO         = 0x3D 
+  RESET             = 0x3C,
+  CALIB_RCO         = 0x3D
 
 };
 
@@ -33,22 +33,23 @@ enum SF_AS3935_REGISTER_NAMES {
 // for the sake of clarity.
 enum SF_AS3935_REGSTER_MASKS { 
 
-  GAIN_MASK         = 0x3E,
-  SPIKE_MASK        = 0xF,
-  IO_MASK           = 0xC1,
-  DISTANCE_MASK     = 0xC0,
-  INT_MASK          = 0xF0, 
-  THRESH_MASK       = 0x0F, 
-  R_SPIKE_MASK      = 0xF0, 
-  ENERGY_MASK       = 0xF0, 
-  CAP_MASK          = 0x0F, 
-  LIGHT_MASK        = 0xCF, 
-  DISTURB_MASK      = 0xDF, 
-  NOISE_FLOOR_MASK  = 0x70,
-  OSC_MASK          = 0xE0,
+  WIPE_ALL          = 0x0,
+  INT_MASK          = 0xF, 
+  ENERGY_MASK       = 0xF, 
   SPI_READ_M        = 0x40,
-  CALIB_MASK        = 0x7F,
-  DIV_MASK          = 0x3F
+  CALIB_MASK        = 0x40,
+  OSC_MASK          = 0x1F,
+  DISTANCE_MASK     = 0x3F,
+  DIV_MASK          = 0x3F,
+  NOISE_FLOOR_MASK  = 0x8F,
+  GAIN_MASK         = 0xC1,
+  STAT_MASK         = 0xBF,
+  DISTURB_MASK      = 0xDF, 
+  LIGHT_MASK        = 0xCF, 
+  SPIKE_MASK        = 0xF0,
+  THRESH_MASK       = 0xF0, 
+  CAP_MASK          = 0xF0,
+  POWER_MASK        = 0xFE
 
 };
 
@@ -60,9 +61,11 @@ typedef enum INTERRUPT_STATUS {
 
 } lightningStatus;  
 
-#define INDOOR  0x12
-#define OUTDOOR 0xE
-#define DIRECT_COMMAND 0x96
+#define INDOOR            0x12
+#define OUTDOOR           0xE
+
+#define DIRECT_COMMAND    0x96
+#define UNKNOWN_ERROR     0xFF
 
 class SparkFun_AS3935
 {
@@ -182,7 +185,7 @@ class SparkFun_AS3935
     // so when modifying the resonance frequency with the internal capacitors
     // (tuneCap()) it's important to keep in mind that the displayed frequency on
     // the IRQ pin is divided by this number. 
-    uint8_t readDivisionRatio();
+    uint8_t readDivRatio();
 
     // REG0x07, bit [5:0], manufacturer default: 0. 
     // This register holds the distance to the front of the storm and not the
@@ -194,7 +197,7 @@ class SparkFun_AS3935
     //  _osc 1, bit[5] = TRCO - Timer RCO Oscillators 1.1MHz
     //  _osc 2, bit[6] = SRCO - System RCO at 32.768kHz
     //  _osc 3, bit[7] = LCO - Frequency of the Antenna
-    void displayOscillator(bool _state, int _osc);
+    void displayOscillator(bool _state, uint8_t _osc);
 
     // REG0x08, bits [3:0], manufacturer default: 0. 
     // This setting will add capacitance to the series RLC antenna on the product.
@@ -215,24 +218,32 @@ class SparkFun_AS3935
     // physical meaning. 
     uint32_t lightningEnergy();
   
+    // REG0x3D, bits[7:0]
+    // This function calibrates both internal oscillators The oscillators are tuned
+    // based on the resonance frequency of the antenna and so it should be trimmed
+    // before the calibration is done. 
+    bool calibrateOsc();
+
+    // REG0x3C, bits[7:0]
+    // This function resets all settings to their default values. 
+    void resetSettings();
+
   private:
 
-    uint32_t _pureLight = 0; // Variable for lightning energy which is just a pure number.  
-    uint32_t _tempPE = 0; // Temp variable for lightning energy. 
     uint32_t _spiPortSpeed; // Given sport speed. 
     uint8_t _cs; // Chip select pin
     uint8_t _regValue; // Variable for returned register data. 
-    uint8_t _spiWrite = 0; // Variable used for SPI write commands. 
-    uint8_t _i2cWrite = 0; // Variable used for SPI write commands. 
+    uint8_t _spiWrite; // Variable used for SPI write commands. 
+    uint8_t _i2cWrite; // Variable used for SPI write commands. 
     // Address variable. 
     i2cAddress _address; 
     // This function handles all I2C write commands. It takes the register to write
     // to, then will mask the part of the register that coincides with the
     // setting, and then write the given bits to the register at the given
     // start position. 
-    void writeRegister(uint8_t _reg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition);
+    void _writeRegister(uint8_t _reg, uint8_t _mask, uint8_t _bits, uint8_t _startPosition);
     // Reads the given register.
-    uint8_t readRegister(uint8_t _reg);
+    uint8_t _readRegister(uint8_t _reg);
     // I-squared-C and SPI Classes
     TwoWire *_i2cPort; 
     SPIClass *_spiPort; 
