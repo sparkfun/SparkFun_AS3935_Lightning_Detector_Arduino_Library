@@ -35,7 +35,7 @@ enum SF_AS3935_REGSTER_MASKS {
 
   WIPE_ALL          = 0x0,
   INT_MASK          = 0xF, 
-  ENERGY_MASK       = 0xF, 
+  ENERGY_MASK       = 0x1F, 
   SPI_READ_M        = 0x40,
   CALIB_MASK        = 0x40,
   OSC_MASK          = 0x1F,

@@ -411,7 +411,7 @@ uint32_t SparkFun_AS3935::lightningEnergy()
 
   uint32_t _pureLight = _readRegister(ENERGY_LIGHT_MMSB);
   _pureLight &= ENERGY_MASK; 
-  _pureLight <<= 16;
+  _pureLight <<= 8;
   _pureLight |= _readRegister(ENERGY_LIGHT_MSB);
   _pureLight <<= 8;
   _pureLight |= _readRegister(ENERGY_LIGHT_LSB);
