@@ -45,11 +45,10 @@ bool SparkFun_AS3935::beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPICla
   // I'll be using this as my indicator that SPI is to be used and not I2C.   
   _i2cPort = NULL; 
   _spiPort = &spiPort; 
-  _spiPortSpeed = spiPortSpeed; // Make sure it's not 500kHz or it will cause feedback with antenna.
+  _spiPortSpeed = spiPortSpeed; // Make sure it's not 500kHz or it will cause feedback with antekknna.
   _cs = user_CSPin;
   pinMode(_cs, OUTPUT); 
   digitalWrite(_cs, HIGH);// Deselect the Lightning Detector. 
-  _spiPort->begin(); // Set up the SPI pins. 
 
   // Bit order is different for ESP32
 #ifdef ESP32 

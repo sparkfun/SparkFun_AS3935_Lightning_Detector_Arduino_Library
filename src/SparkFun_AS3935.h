@@ -80,7 +80,7 @@ class SparkFun_AS3935
     bool begin(TwoWire &wirePort = Wire);
 
     // SPI begin 
-    bool beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPIClass &spiPort = SPI); 
+    bool beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed = 1000000, SPIClass &spiPort = SPI); 
 
     // REG0x00, bit[0], manufacturer default: 0. 
     // The product consumes 1-2uA while powered down. If the board is powered down 

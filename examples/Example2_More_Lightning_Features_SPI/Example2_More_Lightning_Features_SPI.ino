@@ -49,8 +49,8 @@ void setup()
   Serial.begin(115200); 
   Serial.println("AS3935 Franklin Lightning Detector"); 
 
-   SPI.begin(); // For SPI
-  if( !lightning.beginSPI(spiCS, 2000000) ) { 
+  SPI.begin(); // For SPI
+  if( !lightning.beginSPI(spiCS) ) { 
     Serial.println ("Lightning Detector did not start up, freezing!"); 
     while(1); 
   }
