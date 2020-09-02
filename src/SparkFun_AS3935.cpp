@@ -450,7 +450,7 @@ bool SparkFun_AS3935::calibrateOsc(){
 // This function resets all settings to their default values. 
 void SparkFun_AS3935::resetSettings(){
       
-  _writeRegister(RESET, WIPE_ALL, DIRECT_COMMAND, 0);
+  _writeRegister(RESET_LIGHT, WIPE_ALL, DIRECT_COMMAND, 0);
 
 }
 

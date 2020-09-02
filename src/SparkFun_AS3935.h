@@ -24,7 +24,7 @@ enum SF_AS3935_REGISTER_NAMES {
   FREQ_DISP_IRQ,
   CALIB_TRCO        = 0x3A, 
   CALIB_SRCO        = 0x3B,
-  RESET             = 0x3C,
+  RESET_LIGHT       = 0x3C,
   CALIB_RCO         = 0x3D
 
 };
@@ -235,6 +235,7 @@ class SparkFun_AS3935
     uint8_t _regValue; // Variable for returned register data. 
     uint8_t _spiWrite; // Variable used for SPI write commands. 
     uint8_t _i2cWrite; // Variable used for SPI write commands. 
+    
     // Address variable. 
     i2cAddress _address; 
     // This function handles all I2C write commands. It takes the register to write
