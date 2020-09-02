@@ -52,9 +52,9 @@ bool SparkFun_AS3935::beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPICla
 
   // Bit order is different for ESP32
 #ifdef ESP32 
-    SPI.setBitOrder(SPI_MSBFIRST);
+#define _bitOrder SPI_MSBFIRST
 #else
-    SPI.setBitOrder(MSBFIRST);
+#define _bitOrder MSBFIRST 
 #endif
 
   return true; 
@@ -464,7 +464,7 @@ void SparkFun_AS3935::_writeRegister(uint8_t _wReg, uint8_t _mask, uint8_t _bits
     _spiWrite = _readRegister(_wReg); // Get the current value of the register
     _spiWrite &= _mask; // Mask the position we want to write to
     _spiWrite |= (_bits << _startPosition); // Write the given bits to the variable
-    _spiPort->beginTransaction(SPISettings(_spiPortSpeed, MSBFIRST, SPI_MODE1)); 
+    _spiPort->beginTransaction(SPISettings(_spiPortSpeed, _bitOrder, SPI_MODE1)); 
     digitalWrite(_cs, LOW); // Start communication
     _spiPort->transfer(_wReg); // Start write command at given register
     _spiPort->transfer(_spiWrite); // Write to register
@@ -487,7 +487,7 @@ uint8_t SparkFun_AS3935::_readRegister(uint8_t _reg)
 {
 
   if(_i2cPort == NULL) {
-    _spiPort->beginTransaction(SPISettings(_spiPortSpeed, MSBFIRST, SPI_MODE1)); 
+    _spiPort->beginTransaction(SPISettings(_spiPortSpeed, _bitOrder, SPI_MODE1)); 
     digitalWrite(_cs, LOW); // Start communication.
     _spiPort->transfer(_reg |= SPI_READ_M);  // Register OR'ed with SPI read command. 
     _regValue = _spiPort->transfer(0); // Get data from register.  
