@@ -5,6 +5,8 @@
 #include <SPI.h>
 #include <Arduino.h>
 
+
+
 typedef uint8_t i2cAddress; 
 
 const i2cAddress defAddr = 0x03; // Default ADD0 and ADD1 are HIGH
@@ -235,6 +237,8 @@ class SparkFun_AS3935
     uint8_t _regValue; // Variable for returned register data. 
     uint8_t _spiWrite; // Variable used for SPI write commands. 
     uint8_t _i2cWrite; // Variable used for SPI write commands. 
+
+    SPISettings mySpiSettings; 
     
     // Address variable. 
     i2cAddress _address; 
