@@ -377,7 +377,7 @@ void SparkFun_AS3935::displayOscillator(bool _state, uint8_t _osc)
 // It's possible to add up to 120pF in steps of 8pF to the antenna. 
 void SparkFun_AS3935::tuneCap(uint8_t farad)
 {
-  if (farad < 0 || farad > 120)
+  if (farad > 120)
     return; 
   else if ( farad % 8 != 0)
     return; 
@@ -503,7 +503,7 @@ uint8_t SparkFun_AS3935::_readRegister(uint8_t _reg)
     _i2cPort->beginTransmission(_address); 
     _i2cPort->write(_reg); // Moves pointer to register.
     _i2cPort->endTransmission(false); // 'False' here sends a restart message so that bus is not released
-    _i2cPort->requestFrom(_address, 1); // Read the register, only ever once. 
+    _i2cPort->requestFrom(_address, (uint8_t)1); // Read the register, only ever once. 
     _regValue = _i2cPort->read();
     return(_regValue);
   }
