@@ -146,7 +146,7 @@ void setup()
     //Serial.println("Error recalibrating internal osciallator on wake up."); 
   
   // Set too many features? Reset them all with the following function.
-  lightning.resetSettings();
+  // lightning.resetSettings();
   
 }
 
