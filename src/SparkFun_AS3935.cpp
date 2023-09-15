@@ -9,6 +9,7 @@
 */
 
 #include "SparkFun_AS3935.h"
+#include <stdint.h>
 
 // Default constructor, to be used with SPI
 SparkFun_AS3935::SparkFun_AS3935()
@@ -93,7 +94,7 @@ bool SparkFun_AS3935::wakeUp()
 // This function changes toggles the chip's settings for Indoors and Outdoors.
 void SparkFun_AS3935::setIndoorOutdoor(uint8_t _setting)
 {
-    if ((_setting == INDOOR) xor (_setting == OUTDOOR))
+    if !(((_setting == INDOOR) xnor (_setting == OUTDOOR)))
         return
 
     _writeRegister(AFE_GAIN, GAIN_MASK, _setting, 1);
@@ -260,9 +261,6 @@ uint8_t SparkFun_AS3935::readInterruptReg()
 // This setting will change whether or not disturbers trigger the IRQ Pin.
 void SparkFun_AS3935::maskDisturber(bool _state)
 {
-    if ((_state == true) xor (_state == false))
-        return;
-
     _writeRegister(INT_MASK_ANT, DISTURB_MASK, _state, 5);
 }
 
