@@ -9,7 +9,6 @@
 */
 
 #include "SparkFun_AS3935.h"
-#include <stdint.h>
 
 // Default constructor, to be used with SPI
 SparkFun_AS3935::SparkFun_AS3935()
