@@ -54,12 +54,7 @@ bool SparkFun_AS3935::beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPICla
     pinMode(_cs, OUTPUT);
     digitalWrite(_cs, HIGH); // Deselect the Lightning Detector.
 
-    // Bit order is different for ESP32
-#ifdef ESP32
-    mySpiSettings = SPISettings(spiPortSpeed, SPI_MSBFIRST, SPI_MODE1);
-#else
     mySpiSettings = SPISettings(spiPortSpeed, MSBFIRST, SPI_MODE1);
-#endif
 
     return true;
 }
@@ -94,7 +89,7 @@ bool SparkFun_AS3935::wakeUp()
 void SparkFun_AS3935::setIndoorOutdoor(uint8_t _setting)
 {
     if (((_setting != INDOOR) && (_setting != OUTDOOR)))
-        return
+        return;
 
     _writeRegister(AFE_GAIN, GAIN_MASK, _setting, 1);
 }
