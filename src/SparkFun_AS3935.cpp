@@ -34,10 +34,7 @@ bool SparkFun_AS3935::begin(TwoWire &wirePort)
     // A return of 0 indicates success, else an error occurred.
     _i2cPort->beginTransmission(_address);
     uint8_t _ret = _i2cPort->endTransmission();
-    if (!_ret)
-        return true;
-    else
-        return false;
+    return !_ret;
 }
 
 bool SparkFun_AS3935::beginSPI(uint8_t user_CSPin, uint32_t spiPortSpeed, SPIClass &spiPort)
@@ -198,7 +195,6 @@ void SparkFun_AS3935::lightningThreshold(uint8_t _strikes)
 // a 15 minute window before it triggers an event on the IRQ pin. Default is 1.
 uint8_t SparkFun_AS3935::readLightningThreshold()
 {
-
     uint8_t regVal = _readRegister(LIGHTNING_REG);
 
     regVal &= ~LIGHT_MASK;
@@ -407,17 +403,19 @@ uint32_t SparkFun_AS3935::lightningEnergy()
 // This function calibrates both internal oscillators The oscillators are tuned
 // based on the resonance frequency of the antenna and so it should be trimmed
 // before the calibration is done.
+//
+// Returns true if calibration succedded.
 bool SparkFun_AS3935::calibrateOsc()
 {
+    // Send command to calibrate the oscillators
+    _writeRegister(CALIB_RCO, WIPE_ALL, DIRECT_COMMAND, 0);
 
-    _writeRegister(CALIB_RCO, WIPE_ALL, DIRECT_COMMAND, 0); // Send command to calibrate the oscillators
-    Serial.println("Calibrating Oscillators");
-
+    // This procedure is specified in the datasheet
     displayOscillator(true, 2);
-    delay(2); // Give time for the internal oscillators to start up.
+    delay(2);
     displayOscillator(false, 2);
 
-    // Check it they were calibrated successfully.
+    // Check they were calibrated successfully.
     uint8_t regValSrco = _readRegister(CALIB_SRCO);
     uint8_t regValTrco = _readRegister(CALIB_TRCO);
 
@@ -426,17 +424,13 @@ bool SparkFun_AS3935::calibrateOsc()
     regValTrco &= CALIB_MASK;
     regValTrco >>= 6;
 
-    if (!regValSrco && !regValTrco) // Zero upon success
-        return true;
-    else
-        return false;
+    return (!regValSrco && !regValTrco);
 }
 
 // REG0x3C, bits[7:0]
 // This function resets all settings to their default values.
 void SparkFun_AS3935::resetSettings()
 {
-
     _writeRegister(RESET_LIGHT, WIPE_ALL, DIRECT_COMMAND, 0);
 }
 
